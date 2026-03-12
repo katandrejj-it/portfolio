@@ -10,6 +10,7 @@ npm-debug.log*
 # Конфиденциальные данные
 .env
 *.log
+resume.md
 
 # Файлы редакторов
 .vscode/
