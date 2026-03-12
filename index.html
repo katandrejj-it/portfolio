@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="night">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Погода</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-base-100">
+    <div class="container mx-auto px-4 py-8 max-w-md">
+        <!-- Заголовок -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <svg class="w-12 h-12 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"/>
+                </svg>
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    Погода
+                </h1>
+            </div>
+            <p class="text-base-content/70" id="userName">Добро пожаловать!</p>
+        </div>
+
+        <!-- Поле ввода -->
+        <div class="form-control mb-6">
+            <input 
+                type="text" 
+                id="cityInput"
+                placeholder="Введите название города" 
+                class="input input-bordered w-full shadow-[0_0_15px_rgba(147,51,234,0.5)] focus:shadow-[0_0_25px_rgba(147,51,234,0.8)] transition-shadow duration-300"
+            />
+        </div>
+
+        <!-- Кнопка -->
+        <button 
+            id="getWeatherBtn"
+            class="btn w-full bg-gradient-to-r from-primary to-secondary border-0 text-white hover:scale-105 transition-transform duration-200 mb-8"
+        >
+            Узнать погоду
+        </button>
+
+        <!-- Карточки -->
+        <div id="weatherCards" class="grid grid-cols-1 gap-4 hidden">
+            <div class="card bg-base-200 shadow-xl">
+                <div class="card-body items-center text-center">
+                    <h2 class="card-title text-primary">🌡️ Температура</h2>
+                    <p class="text-3xl font-bold" id="temp">--°C</p>
+                </div>
+            </div>
+            
+            <div class="card bg-base-200 shadow-xl">
+                <div class="card-body items-center text-center">
+                    <h2 class="card-title text-info">💧 Влажность</h2>
+                    <p class="text-3xl font-bold" id="humidity">--%</p>
+                </div>
+            </div>
+            
+            <div class="card bg-base-200 shadow-xl">
+                <div class="card-body items-center text-center">
+                    <h2 class="card-title text-secondary">🌤️ Ощущается как</h2>
+                    <p class="text-3xl font-bold" id="feelsLike">--°C</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        // Получение данных пользователя
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('userName').textContent = `Привет, ${user.first_name}!`;
+        }
+
+        // Обработчик кнопки
+        document.getElementById('getWeatherBtn').addEventListener('click', async () => {
+            const city = document.getElementById('cityInput').value.trim();
+            
+            if (!city) {
+                tg.showAlert('Введите название города');
+                return;
+            }
+
+            // Симуляция получения погоды (замените на реальный API)
+            const temp = Math.floor(Math.random() * 30 - 5);
+            const humidity = Math.floor(Math.random() * 40 + 40);
+            const feelsLike = temp + Math.floor(Math.random() * 6 - 3);
+
+            document.getElementById('temp').textContent = `${temp}°C`;
+            document.getElementById('humidity').textContent = `${humidity}%`;
+            document.getElementById('feelsLike').textContent = `${feelsLike}°C`;
+            document.getElementById('weatherCards').classList.remove('hidden');
+
+            tg.HapticFeedback.notificationOccurred('success');
+        });
+
+        // Настройка темы
+        tg.setHeaderColor('#0f1729');
+        tg.setBackgroundColor('#0f1729');
+    </script>
+</body>
+</html>
