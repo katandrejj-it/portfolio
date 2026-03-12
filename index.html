@@ -10,6 +10,10 @@
       href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
   </head>
   <body class="min-h-screen bg-base-100">
     <div class="container mx-auto px-4 py-8 max-w-md">
@@ -57,6 +61,7 @@
         <div class="card bg-base-200 shadow-xl">
           <div class="card-body items-center text-center">
             <h2 class="card-title text-primary">🌡️ Температура</h2>
+            <div id="weatherIcon" class="text-6xl mb-2"></div>
             <p class="text-3xl font-bold" id="temp">--°C</p>
           </div>
         </div>
@@ -81,6 +86,24 @@
       const tg = window.Telegram.WebApp;
       tg.ready();
       tg.expand();
+
+      // Функция для выбора иконки погоды
+      function getWeatherIcon(weatherMain) {
+        const iconMap = {
+          Clear: '<i class="fas fa-sun text-yellow-400"></i>',
+          Clouds: '<i class="fas fa-cloud text-gray-400"></i>',
+          Rain: '<i class="fas fa-cloud-rain text-blue-400"></i>',
+          Drizzle: '<i class="fas fa-cloud-rain text-blue-300"></i>',
+          Thunderstorm: '<i class="fas fa-bolt text-yellow-600"></i>',
+          Snow: '<i class="fas fa-snowflake text-blue-200"></i>',
+          Mist: '<i class="fas fa-smog text-gray-500"></i>',
+          Smoke: '<i class="fas fa-smog text-gray-500"></i>',
+          Haze: '<i class="fas fa-smog text-gray-500"></i>',
+        };
+        return (
+          iconMap[weatherMain] || '<i class="fas fa-cloud text-gray-400"></i>'
+        );
+      }
 
       // Получение данных пользователя
       const user = tg.initDataUnsafe?.user;
@@ -121,6 +144,11 @@
               tg.showAlert("Город не найден или ошибка сервера");
               return;
             }
+
+            // Выбираем и отображаем иконку
+            const weatherMain = data.weather[0].main;
+            document.getElementById("weatherIcon").innerHTML =
+              getWeatherIcon(weatherMain);
 
             document.getElementById("temp").textContent =
               `${Math.round(data.main.temp)}°C`;
