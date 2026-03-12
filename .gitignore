@@ -1,0 +1,20 @@
+# Системные файлы macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Зависимости (если используете npm/yarn)
+node_modules/
+npm-debug.log*
+
+# Конфиденциальные данные
+.env
+*.log
+
+# Файлы редакторов
+.vscode/
+.idea/
+
+# Специфично для верстки и билдов
+dist/
+build/
