@@ -19,3 +19,9 @@ resume.md
 # Специфично для верстки и билдов
 dist/
 build/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
