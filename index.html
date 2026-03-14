@@ -2,49 +2,160 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Портфолио</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Портфолио (Телефон)</title>
     <style>
+      :root {
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
       body {
         margin: 0;
         min-height: 100vh;
-        background: #0b1220;
-        color: #edf2ff;
-        font-family: Inter, system-ui, sans-serif;
+        background: radial-gradient(
+          circle at 20% 0%,
+          #27272a 0%,
+          #020617 47%,
+          #020617 100%
+        );
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 0.7rem;
+        color: #e2e8f0;
       }
-      .card {
-        background: #111827;
+      .phone {
+        width: min(420px, 100%);
+        border-radius: 28px;
+        overflow: hidden;
+        background: #0f172a;
         border: 1px solid #334155;
-        border-radius: 12px;
-        padding: 1rem;
-        width: min(540px, 100%);
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
+        display: flex;
+        flex-direction: column;
       }
-      a {
-        color: #f8fafc;
-        text-decoration: none;
-        background: #2563eb;
-        padding: 0.4rem 0.7rem;
-        border-radius: 8px;
-        display: inline-block;
-        margin-top: 0.5rem;
-      }
-      p {
-        margin: 0.2rem 0;
+      .topbar {
+        height: 36px;
+        background: linear-gradient(
+          180deg,
+          rgba(15, 23, 42, 0.9),
+          rgba(15, 23, 42, 0.6)
+        );
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 10px;
+        font-size: 0.72rem;
         color: #cbd5e1;
+      }
+      .screen {
+        padding: 0.9rem;
+        display: flex;
+        flex-direction: column;
+        min-height: 560px;
+      }
+      .title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+      }
+      .subtitle {
+        margin: 0.15rem 0 0.9rem;
+        color: #cbd5e1;
+        font-size: 0.86rem;
+      }
+      .app-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.45rem;
+        margin-top: 0.2rem;
+      }
+      .app {
+        background: #111827;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 15px;
+        padding: 0.45rem 0.15rem;
+        text-decoration: none;
+        color: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 94px;
+        transition: all 0.15s ease;
+      }
+      .app:hover {
+        border-color: rgba(59, 130, 246, 0.45);
+        transform: translateY(-1px);
+        box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.08);
+      }
+      .app-icon {
+        width: 37px;
+        height: 37px;
+        border-radius: 10px;
+        background: #1d2939;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        margin-bottom: 0.28rem;
+      }
+      .app-label {
+        font-size: 0.72rem;
+        text-align: center;
+        line-height: 1.2;
+      }
+      .footer {
+        margin-top: auto;
+        padding: 0.7rem 0.1rem 0;
+        font-size: 0.78rem;
+        color: #94a3b8;
       }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h1>Портфолио</h1>
-      <p>Проект погоды находится ниже:</p>
-      <a href="weather/index.html">Открыть Weather</a>
-      <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 1rem">
-        Добавляйте новые проекты в соседних папках рядом с <code>weather</code>.
-      </p>
+    <div class="phone">
+      <div class="topbar"><span>9:41</span><span>Wi-Fi · 100%</span></div>
+      <div class="screen">
+        <div>
+          <p class="title">Мои проекты</p>
+          <p class="subtitle">Нажми и открой приложение</p>
+        </div>
+        <div class="app-grid">
+          <a class="app" href="weather/index.html"
+            ><div class="app-icon">☁️</div>
+            <div class="app-label">Weather</div></a
+          >
+          <a class="app" href="#"
+            ><div class="app-icon">💼</div>
+            <div class="app-label">Портфолио</div></a
+          >
+          <a class="app" href="#"
+            ><div class="app-icon">📁</div>
+            <div class="app-label">Проекты</div></a
+          >
+          <a class="app" href="#"
+            ><div class="app-icon">⚙️</div>
+            <div class="app-label">Найстройка</div></a
+          >
+        </div>
+        <div class="footer">
+          Убедитесь, что новые apps добавлены рядом с папкой
+          <code>weather/</code>.
+        </div>
+      </div>
     </div>
   </body>
 </html>
