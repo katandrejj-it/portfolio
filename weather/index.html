@@ -94,9 +94,15 @@
     </div>
 
     <script>
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-      tg.expand();
+      const tg = window.Telegram?.WebApp;
+      tg?.ready();
+      tg?.expand();
+      const WEATHER_WORKER_URL =
+        "https://rapid-sun-74ab.katandrejj.workers.dev";
+      const showAlert = (message) => {
+        if (tg?.showAlert) tg.showAlert(message);
+        else alert(message);
+      };
 
       // Функция для выбора иконки погоды
       function getWeatherIcon(weatherMain) {
@@ -131,7 +137,7 @@
           const btn = document.getElementById("getWeatherBtn");
 
           if (!city) {
-            tg.showAlert("Введите название города");
+            showAlert("Введите название города");
             return;
           }
 
@@ -141,18 +147,17 @@
 
           try {
             const response = await fetch(
-              `https://rapid-sun-74ab.katandrejj.workers.dev/?city=${encodeURIComponent(city)}`,
+              `${WEATHER_WORKER_URL}/?city=${encodeURIComponent(city)}`,
             );
 
             if (!response.ok) {
-              tg.showAlert("Город не найден или ошибка сервера");
-              return;
+              showAlert("Город не найден или ошибка сервера");
             }
 
             const data = await response.json();
 
             if (data.cod !== 200) {
-              tg.showAlert("Город не найден или ошибка сервера");
+              showAlert("Город не найден или ошибка сервера");
               return;
             }
 
@@ -169,9 +174,9 @@
               `${Math.round(data.main.feels_like)}°C`;
             document.getElementById("weatherCards").classList.remove("hidden");
 
-            tg.HapticFeedback.notificationOccurred("success");
+            tg?.HapticFeedback?.notificationOccurred?.("success");
           } catch (error) {
-            tg.showAlert("Город не найден или ошибка сервера");
+            showAlert("Город не найден или ошибка сервера");
           } finally {
             // Убираем состояние загрузки
             btn.classList.remove("loading");
@@ -180,8 +185,8 @@
         });
 
       // Настройка темы
-      tg.setHeaderColor("#0f1729");
-      tg.setBackgroundColor("#0f1729");
+      tg?.setHeaderColor?.("#0f1729");
+      tg?.setBackgroundColor?.("#0f1729");
     </script>
 
     <!-- Service Worker Registration -->
