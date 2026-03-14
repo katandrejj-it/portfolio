@@ -1,203 +1,22 @@
 <!doctype html>
-<html lang="ru" data-theme="night">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Погода</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json" />
-    <!-- iOS Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <meta name="apple-mobile-web-app-title" content="Погода" />
-    <link rel="apple-touch-icon" href="icon-192.png" />
-    <meta name="theme-color" content="#0f1729" />
-  </head>
-  <body class="min-h-screen bg-base-100">
-    <div class="container mx-auto px-4 py-8 max-w-md">
-      <!-- Заголовок -->
-      <div class="text-center mb-8">
-        <div class="flex items-center justify-center gap-3 mb-2">
-          <svg
-            class="w-12 h-12 text-primary"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"
-            />
-          </svg>
-          <h1
-            class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
-          >
-            Погода
-          </h1>
-        </div>
-        <p class="text-base-content/70" id="userName">Добро пожаловать!</p>
-      </div>
-
-      <!-- Поле ввода -->
-      <div class="form-control mb-6">
-        <input
-          type="text"
-          id="cityInput"
-          placeholder="Введите название города"
-          class="input input-bordered w-full shadow-[0_0_15px_rgba(147,51,234,0.5)] focus:shadow-[0_0_25px_rgba(147,51,234,0.8)] transition-shadow duration-300"
-        />
-      </div>
-
-      <!-- Кнопка -->
-      <button
-        id="getWeatherBtn"
-        class="btn w-full bg-gradient-to-r from-primary to-secondary border-0 text-white hover:scale-105 transition-transform duration-200 mb-8"
-      >
-        Узнать погоду
-      </button>
-
-      <!-- Карточки -->
-      <div id="weatherCards" class="grid grid-cols-1 gap-4 hidden">
-        <div class="card bg-base-200 shadow-xl">
-          <div class="card-body items-center text-center">
-            <h2 class="card-title text-primary">🌡️ Температура</h2>
-            <div id="weatherIcon" class="text-6xl mb-2"></div>
-            <p class="text-3xl font-bold" id="temp">--°C</p>
-          </div>
-        </div>
-
-        <div class="card bg-base-200 shadow-xl">
-          <div class="card-body items-center text-center">
-            <h2 class="card-title text-info">💧 Влажность</h2>
-            <p class="text-3xl font-bold" id="humidity">--%</p>
-          </div>
-        </div>
-
-        <div class="card bg-base-200 shadow-xl">
-          <div class="card-body items-center text-center">
-            <h2 class="card-title text-secondary">🌤️ Ощущается как</h2>
-            <p class="text-3xl font-bold" id="feelsLike">--°C</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script>
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-      tg.expand();
-
-      // Функция для выбора иконки погоды
-      function getWeatherIcon(weatherMain) {
-        const iconMap = {
-          Clear: '<i class="fas fa-sun text-yellow-400"></i>',
-          Clouds: '<i class="fas fa-cloud text-gray-400"></i>',
-          Rain: '<i class="fas fa-cloud-rain text-blue-400"></i>',
-          Drizzle: '<i class="fas fa-cloud-rain text-blue-300"></i>',
-          Thunderstorm: '<i class="fas fa-bolt text-yellow-600"></i>',
-          Snow: '<i class="fas fa-snowflake text-blue-200"></i>',
-          Mist: '<i class="fas fa-smog text-gray-500"></i>',
-          Smoke: '<i class="fas fa-smog text-gray-500"></i>',
-          Haze: '<i class="fas fa-smog text-gray-500"></i>',
-        };
-        return (
-          iconMap[weatherMain] || '<i class="fas fa-cloud text-gray-400"></i>'
-        );
-      }
-
-      // Получение данных пользователя
-      const user = tg.initDataUnsafe?.user;
-      if (user) {
-        document.getElementById("userName").textContent =
-          `Привет, ${user.first_name}!`;
-      }
-
-      // Обработчик кнопки
-      document
-        .getElementById("getWeatherBtn")
-        .addEventListener("click", async () => {
-          const city = document.getElementById("cityInput").value.trim();
-          const btn = document.getElementById("getWeatherBtn");
-
-          if (!city) {
-            tg.showAlert("Введите название города");
-            return;
-          }
-
-          // Добавляем состояние загрузки
-          btn.classList.add("loading");
-          btn.disabled = true;
-
-          try {
-            const response = await fetch(
-              `https://rapid-sun-74ab.katandrejj.workers.dev/?city=${encodeURIComponent(city)}`,
-            );
-
-            if (!response.ok) {
-              tg.showAlert("Город не найден или ошибка сервера");
-              return;
-            }
-
-            const data = await response.json();
-
-            if (data.cod !== 200) {
-              tg.showAlert("Город не найден или ошибка сервера");
-              return;
-            }
-
-            // Выбираем и отображаем иконку
-            const weatherMain = data.weather[0].main;
-            document.getElementById("weatherIcon").innerHTML =
-              getWeatherIcon(weatherMain);
-
-            document.getElementById("temp").textContent =
-              `${Math.round(data.main.temp)}°C`;
-            document.getElementById("humidity").textContent =
-              `${data.main.humidity}%`;
-            document.getElementById("feelsLike").textContent =
-              `${Math.round(data.main.feels_like)}°C`;
-            document.getElementById("weatherCards").classList.remove("hidden");
-
-            tg.HapticFeedback.notificationOccurred("success");
-          } catch (error) {
-            tg.showAlert("Город не найден или ошибка сервера");
-          } finally {
-            // Убираем состояние загрузки
-            btn.classList.remove("loading");
-            btn.disabled = false;
-          }
-        });
-
-      // Настройка темы
-      tg.setHeaderColor("#0f1729");
-      tg.setBackgroundColor("#0f1729");
-    </script>
-
-    <!-- Service Worker Registration -->
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker
-            .register("sw.js")
-            .then((registration) => {
-              console.log("Service Worker registered:", registration);
-            })
-            .catch((error) => {
-              console.log("Service Worker registration failed:", error);
-            });
-        });
-      }
-    </script>
-  </body>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Портфолио</title>
+  <style>
+    body{margin:0; min-height:100vh; background:#0b1220; color:#edf2ff; font-family:Inter,system-ui,sans-serif; display:flex; align-items:center; justify-content:center;}
+    .card{background:#111827; border:1px solid #334155; border-radius:12px; padding:1rem; width:min(540px,100%);}
+    a{color:#f8fafc; text-decoration:none; background:#2563eb; padding:.4rem .7rem; border-radius:8px; display:inline-block; margin-top:.5rem;}
+    p{margin:.2rem 0; color:#cbd5e1;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Портфолио</h1>
+    <p>Проект погоды находится ниже:</p>
+    <a href="/weather/index.html">Открыть Weather</a>
+    <p style="font-size:.85rem; color:#94a3b8; margin-top:1rem;">Добавляйте новые проекты в соседних папках рядом с <code>weather</code>.</p>
+  </div>
+</body>
 </html>
