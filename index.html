@@ -16,7 +16,10 @@
       }
       body {
         margin: 0;
+        width: 100vw;
+        height: 100vh;
         min-height: 100vh;
+        min-width: 100vw;
         background: radial-gradient(
           circle at 20% 0%,
           #27272a 0%,
@@ -32,74 +35,68 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0.7rem;
         color: #e2e8f0;
       }
       .phone {
-        width: min(420px, 100%);
-        border-radius: 28px;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
         overflow: hidden;
         background: #0f172a;
-        border: 1px solid #334155;
-        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
+        border: 0;
+        box-shadow: none;
         display: flex;
         flex-direction: column;
-      }
-      .topbar {
-        height: 36px;
-        background: linear-gradient(
-          180deg,
-          rgba(15, 23, 42, 0.9),
-          rgba(15, 23, 42, 0.6)
-        );
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 10px;
-        font-size: 0.72rem;
-        color: #cbd5e1;
       }
       .screen {
-        padding: 0.9rem;
-        display: flex;
-        flex-direction: column;
-        min-height: 560px;
-      }
-      .title {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 700;
-      }
-      .subtitle {
-        margin: 0.15rem 0 0.9rem;
-        color: #cbd5e1;
-        font-size: 0.86rem;
+        width: 100%;
+        height: 100%;
+        padding: 0.35rem;
+        position: relative;
       }
       .app-grid {
+        width: 100%;
+        height: 100%;
+        position: relative;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 0.45rem;
-        margin-top: 0.2rem;
+        grid-template-rows: repeat(5, 1fr);
+        gap: 0.35rem;
       }
       .app {
+        width: 100%;
+        height: 100%;
+        max-width: 87px;
+        max-height: 87px;
+        top: 4px;
+        left: 4px;
         background: #111827;
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 15px;
-        padding: 0.45rem 0.15rem;
+        border-radius: 18px;
+        padding: 0.35rem;
         text-decoration: none;
         color: #f8fafc;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 94px;
-        transition: all 0.15s ease;
+        transition:
+          box-shadow 0.15s ease,
+          transform 0.15s ease;
+        touch-action: none;
+        cursor: grab;
+        position: absolute;
+      }
+      .app.dragging {
+        opacity: 0.75;
+        transform: scale(1.02);
+        cursor: grabbing;
+      }
+      .app.editing {
+        filter: brightness(1.1);
       }
       .app:hover {
-        border-color: rgba(59, 130, 246, 0.45);
-        transform: translateY(-1px);
-        box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.08);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
       }
       .app-icon {
         width: 37px;
@@ -110,52 +107,102 @@
         align-items: center;
         justify-content: center;
         font-size: 1rem;
-        margin-bottom: 0.28rem;
+        margin-bottom: 0.2rem;
       }
       .app-label {
         font-size: 0.72rem;
         text-align: center;
         line-height: 1.2;
       }
-      .footer {
-        margin-top: auto;
-        padding: 0.7rem 0.1rem 0;
-        font-size: 0.78rem;
-        color: #94a3b8;
-      }
     </style>
   </head>
   <body>
     <div class="phone">
-      <div class="topbar"><span>9:41</span><span>Wi-Fi · 100%</span></div>
       <div class="screen">
-        <div>
-          <p class="title">Мои проекты</p>
-          <p class="subtitle">Нажми и открой приложение</p>
-        </div>
-        <div class="app-grid">
-          <a class="app" href="weather/index.html"
-            ><div class="app-icon">☁️</div>
-            <div class="app-label">Weather</div></a
-          >
-          <a class="app" href="#"
-            ><div class="app-icon">💼</div>
-            <div class="app-label">Портфолио</div></a
-          >
-          <a class="app" href="#"
-            ><div class="app-icon">📁</div>
-            <div class="app-label">Проекты</div></a
-          >
-          <a class="app" href="#"
-            ><div class="app-icon">⚙️</div>
-            <div class="app-label">Найстройка</div></a
-          >
-        </div>
-        <div class="footer">
-          Убедитесь, что новые apps добавлены рядом с папкой
-          <code>weather/</code>.
+        <div class="app-grid" id="appGrid">
+          <a class="app" id="weatherApp" data-href="weather/index.html">
+            <div class="app-icon">☁️</div>
+            <div class="app-label">Weather</div>
+          </a>
         </div>
       </div>
     </div>
+    <script>
+      const app = document.getElementById("weatherApp");
+      const appGrid = document.getElementById("appGrid");
+      let isEditMode = false;
+      let isDragging = false;
+      let dragOffset = { x: 0, y: 0 };
+      let longPressTimer = null;
+      let pointerId = null;
+
+      function enterEditMode() {
+        isEditMode = true;
+        app.classList.add("dragging");
+      }
+
+      function exitEditMode() {
+        isEditMode = false;
+        isDragging = false;
+        app.classList.remove("dragging");
+      }
+
+      app.addEventListener("pointerdown", (e) => {
+        pointerId = e.pointerId;
+        app.setPointerCapture(pointerId);
+        longPressTimer = setTimeout(() => {
+          enterEditMode();
+          isDragging = true;
+          dragOffset.x = e.clientX - app.offsetLeft;
+          dragOffset.y = e.clientY - app.offsetTop;
+        }, 220);
+      });
+
+      app.addEventListener("pointermove", (e) => {
+        if (!isEditMode || !isDragging || e.pointerId !== pointerId) return;
+        const rect = appGrid.getBoundingClientRect();
+        let newX = e.clientX - rect.left - dragOffset.x;
+        let newY = e.clientY - rect.top - dragOffset.y;
+        newX = Math.max(0, Math.min(rect.width - app.offsetWidth, newX));
+        newY = Math.max(0, Math.min(rect.height - app.offsetHeight, newY));
+        app.style.left = `${newX}px`;
+        app.style.top = `${newY}px`;
+      });
+
+      function snapToGrid() {
+        const rect = appGrid.getBoundingClientRect();
+        const cellW = rect.width / 4;
+        const cellH = rect.height / 5;
+        const appRect = app.getBoundingClientRect();
+        const x = appRect.left - rect.left;
+        const y = appRect.top - rect.top;
+        const col = Math.min(3, Math.max(0, Math.round(x / cellW)));
+        const row = Math.min(4, Math.max(0, Math.round(y / cellH)));
+        app.style.left = `${col * cellW + 4}px`;
+        app.style.top = `${row * cellH + 4}px`;
+      }
+
+      app.addEventListener("pointerup", (e) => {
+        if (longPressTimer) clearTimeout(longPressTimer);
+        if (!isEditMode) {
+          window.location.href = app.dataset.href;
+        } else {
+          snapToGrid();
+          exitEditMode();
+        }
+        pointerId = null;
+      });
+
+      app.addEventListener("pointercancel", () => {
+        if (longPressTimer) clearTimeout(longPressTimer);
+        exitEditMode();
+      });
+
+      app.addEventListener("click", (e) => {
+        if (isEditMode) {
+          e.preventDefault();
+        }
+      });
+    </script>
   </body>
 </html>
