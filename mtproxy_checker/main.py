@@ -32,6 +32,8 @@ def extract_proxies(text):
             port = int(port)
         except ValueError:
             continue
+        if not (0 < port <= 65535):
+            continue
 
         proxies.append({
             "url": raw_url,
@@ -49,7 +51,7 @@ def extract_proxies(text):
 
 async def fetch_source():
     async with aiohttp.ClientSession() as session:
-        async with session.get(SOURCE_URL, timeout=30) as res:
+        async with session.get(SOURCE_URL, timeout=30, ssl=False) as res:
             res.raise_for_status()
             return await res.text()
 
