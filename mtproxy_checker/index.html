@@ -4,7 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MTProto Proxy Monitor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .spinner {
+        border: 4px solid #374151;
+        border-top: 4px solid #06b6d4;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        margin-right: 8px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body class="h-full bg-slate-950 text-slate-100">
     <div class="mx-auto max-w-6xl p-4">
@@ -31,7 +50,10 @@
         </table>
       </div>
 
-      <div class="mt-4 text-sm text-slate-400" id="status">Загрузка...</div>
+      <div class="mt-4 text-sm text-slate-400" id="status">
+        <div class="spinner" id="spinner"></div>
+        Загрузка...
+      </div>
     </div>
 
     <script>
@@ -39,6 +61,7 @@
       const bodyEl = document.getElementById("proxyBody");
 
       async function loadProxies() {
+        const spinner = document.getElementById("spinner");
         try {
           const res = await fetch("proxies.json", { cache: "no-store" });
           if (!res.ok) throw new Error("Не удалось загрузить proxies.json");
@@ -50,7 +73,7 @@
           if (!proxies.length) {
             bodyEl.innerHTML =
               '<tr><td colspan="4" class="p-3 text-center text-slate-400">Нет данных</td></tr>';
-            statusEl.textContent = "Прокси не найдены.";
+            statusEl.innerHTML = "Прокси не найдены.";
             return;
           }
 
@@ -69,12 +92,14 @@
             bodyEl.appendChild(row);
           }
 
-          statusEl.textContent = `Загружено ${proxies.length} рабочих прокси.`;
+          statusEl.innerHTML = `Загружено ${proxies.length} рабочих прокси.`;
         } catch (e) {
-          statusEl.textContent = "Ошибка загрузки: " + e.message;
+          statusEl.innerHTML = "Ошибка загрузки: " + e.message;
           bodyEl.innerHTML =
             '<tr><td colspan="4" class="p-3 text-center text-red-400">Ошибка загрузки proxies.json</td></tr>';
           console.error(e);
+        } finally {
+          spinner.style.display = "none";
         }
       }
 
