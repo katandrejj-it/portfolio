@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru" class="h-full bg-slate-950 text-slate-100">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MTProto Proxy Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="h-full bg-slate-950 text-slate-100">
+    <div class="mx-auto max-w-6xl p-4">
+      <header class="mb-6 border-b border-slate-800 pb-4">
+        <h1 class="text-3xl font-bold">MTProto Proxy Monitor</h1>
+        <p class="text-slate-400">
+          Автоматическое отображение рабочих прокси из proxies.json
+        </p>
+      </header>
+
+      <div
+        class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 p-2"
+      >
+        <table class="min-w-full text-left text-sm">
+          <thead class="bg-slate-800 text-slate-300">
+            <tr>
+              <th class="px-4 py-3">Сервер</th>
+              <th class="px-4 py-3">Порт</th>
+              <th class="px-4 py-3">Пинг (ms)</th>
+              <th class="px-4 py-3">Действие</th>
+            </tr>
+          </thead>
+          <tbody id="proxyBody"></tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 text-sm text-slate-400" id="status">Загрузка...</div>
+    </div>
+
+    <script>
+      const statusEl = document.getElementById("status");
+      const bodyEl = document.getElementById("proxyBody");
+
+      async function loadProxies() {
+        try {
+          const res = await fetch("proxies.json", { cache: "no-store" });
+          if (!res.ok) throw new Error("Не удалось загрузить proxies.json");
+          const proxies = await res.json();
+
+          proxies.sort((a, b) => (a.ping ?? 1e9) - (b.ping ?? 1e9));
+
+          bodyEl.innerHTML = "";
+          if (!proxies.length) {
+            bodyEl.innerHTML =
+              '<tr><td colspan="4" class="p-3 text-center text-slate-400">Нет данных</td></tr>';
+            statusEl.textContent = "Прокси не найдены.";
+            return;
+          }
+
+          for (const p of proxies) {
+            const row = document.createElement("tr");
+            row.className = "border-t border-slate-800 hover:bg-slate-900";
+
+            row.innerHTML = `
+              <td class="px-4 py-2">${p.server}</td>
+              <td class="px-4 py-2">${p.port}</td>
+              <td class="px-4 py-2">${p.ping ?? "-"}<span class="text-xs text-slate-500">ms</span></td>
+              <td class="px-4 py-2">
+                <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="rounded bg-cyan-500 px-3 py-1 text-xs font-semibold text-slate-950 hover:bg-cyan-400">Подключить</a>
+              </td>
+            `;
+            bodyEl.appendChild(row);
+          }
+
+          statusEl.textContent = `Загружено ${proxies.length} рабочих прокси.`;
+        } catch (e) {
+          statusEl.textContent = "Ошибка загрузки: " + e.message;
+          bodyEl.innerHTML =
+            '<tr><td colspan="4" class="p-3 text-center text-red-400">Ошибка загрузки proxies.json</td></tr>';
+          console.error(e);
+        }
+      }
+
+      loadProxies();
+    </script>
+  </body>
+</html>
